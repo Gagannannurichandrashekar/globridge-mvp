@@ -212,6 +212,9 @@ def auto_seed_if_empty():
                 print("Auto-seeding completed successfully!")
             else:
                 print("Database already has users, skipping auto-seed")
+        except Exception as db_error:
+            print(f"Database error during auto-seed: {db_error}")
+            db.rollback()
         finally:
             db.close()
     except Exception as e:
@@ -219,12 +222,6 @@ def auto_seed_if_empty():
         # Don't crash the app if seeding fails
         pass
 
-# Run auto-seed on startup (non-blocking)
-try:
-    auto_seed_if_empty()
-except Exception as e:
-    print(f"Startup auto-seed failed: {e}")
-    # Continue anyway
 
 # ---------- App init ----------
 app = FastAPI(title="Globridge MVP", version="0.1.0")
@@ -237,6 +234,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Run auto-seed on startup (non-blocking) - after app creation
+@app.on_event("startup")
+async def startup_event():
+    try:
+        auto_seed_if_empty()
+    except Exception as e:
+        print(f"Startup auto-seed failed: {e}")
+        # Continue anyway
 
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
