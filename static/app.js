@@ -174,25 +174,14 @@ $('#btn-login').onclick = ()=>{
     }
     
     try {
-      const response = await fetch(API_BASE + '/api/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({email, password}),
-        credentials: 'include'
-      });
+      const res = await POST('/api/login', {email, password});
       
-      const res = await response.json();
-      
-      if(res.ok && res.user){ 
-        $('#modal').classList.add('hidden'); 
-        refreshMe(); 
-        showSuccess('Login successful!');
-      } else {
-        showError('login-error', res.detail || 'Login failed. Please check your credentials.');
-      }
+      $('#modal').classList.add('hidden'); 
+      refreshMe(); 
+      showSuccess('Login successful!');
     } catch (error) {
       console.error('Login error:', error);
-      showError('login-error', 'Network error. Please check your connection and try again.');
+      showError('login-error', error.message || 'Login failed. Please check your credentials.');
     }
   };
 };
@@ -228,33 +217,16 @@ $('#btn-register').onclick = ()=>{
     }
     
     try {
-      const response = await fetch(API_BASE + '/api/register', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({name,email,password,role}),
-        credentials: 'include'
-      });
+      const res = await POST('/api/register', {name,email,password,role});
       
-      const res = await response.json();
-      
-      if(res.ok){ 
-        $('#modal').classList.add('hidden'); 
-        // Auto-login after registration
-        const loginResponse = await fetch(API_BASE + '/api/login', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({email, password}),
-          credentials: 'include'
-        });
-        
-        if(loginResponse.ok) {
-          refreshMe(); 
-          showSuccess('Account created and logged in successfully!');
-        } else {
-          showSuccess('Account created successfully! Please log in.');
-        }
-      } else {
-        showError('register-error', res.detail || 'Registration failed. Please try again.');
+      $('#modal').classList.add('hidden'); 
+      // Auto-login after registration
+      try {
+        await POST('/api/login', {email, password});
+        refreshMe(); 
+        showSuccess('Account created and logged in successfully!');
+      } catch (loginError) {
+        showSuccess('Account created successfully! Please log in.');
       }
     } catch (error) {
       console.error('Registration error:', error);
