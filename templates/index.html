@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Globridge — Expand Globally, Simply</title>
+  <link rel="stylesheet" href="/static/styles.css"/>
+</head>
+<body>
+  <header>
+   <div class="brand">
+  <img src="/static/logo.png" alt="Globridge logo" class="brand-logo"/>
+  <span>Globridge</span>
+</div>
+
+    <nav>
+        <button id="nav-home">Home</button>
+        <button id="nav-feed" class="nav-restricted">Feed</button>
+        <button id="nav-listings" class="nav-restricted">Listings</button>
+        <button id="nav-costs" class="nav-restricted">Cost Tool</button>
+        <button id="nav-messages" class="nav-restricted">
+          Messages
+          <span id="connection-requests-badge" class="notification-badge hidden">0</span>
+        </button>
+        <button id="nav-dashboard" class="nav-restricted">Dashboard</button>
+        <button id="nav-personal" class="nav-restricted">My Profile</button>
+        <button id="nav-admin" class="admin-only hidden nav-restricted">Admin</button>
+        
+      <span id="auth-area">
+        <button id="btn-login">Login</button>
+        <button id="btn-register" class="secondary">Register</button>
+      </span>
+      <span id="user-area" class="hidden">
+        <span id="user-chip"></span>
+        <button id="btn-logout" class="secondary">Logout</button>
+      </span>
+      
+      <!-- Universal Search - Integrated in navigation -->
+      <div class="universal-search auth-required hidden">
+        <input type="text" id="universal-search-input" placeholder="Search users, businesses..." />
+        <div id="search-results" class="search-results hidden"></div>
+      </div>
+    </nav>
+  </header>
+
+  <main id="view">
+    <section id="home" class="view active">
+      <h1>Expand your business across borders</h1>
+<p class="lead hero-desc">
+  Globridge connects businesses in different countries to co-brand, launch sub-brands, and expand together.
+  Instead of starting cold, find a local hero brand, form a tie-up, share brand equity, and open faster with lower costs.
+</p>
+<div class="hero-logo-wrap">
+  <img src="/static/logo.png" alt="Globridge" class="hero-logo"/>
+</div>
+<div class="grid">
+  <div class="card">
+    <h3>Business listing</h3>
+    <p>Tell your story, share your expansion plan, and get discovered.</p>
+  </div>
+  <div class="card">
+    <h3>Cost comparison</h3>
+    <p>Estimate expansion costs between countries (e.g., USA vs India).</p>
+  </div>
+  <div class="card">
+    <h3>Investor/partner matching</h3>
+    <p>Match with investors or similar brands for co-branding and sub-brands.</p>
+  </div>
+  <div class="card">
+    <h3>Simple messaging</h3>
+    <p>Chat inside the app. Optional email alerts for new messages.</p>
+  </div>
+</div>
+
+<!-- Authentication prompt for unauthenticated users -->
+<div id="auth-prompt" class="card auth-prompt-section">
+  <h3>🚀 Get Started with Globridge</h3>
+  <p>Connect with global business partners and expand your reach. Login or register to access all features:</p>
+  <ul>
+    <li>📋 Browse and post business opportunities</li>
+    <li>💰 Compare expansion costs across countries</li>
+    <li>💬 Message potential partners directly</li>
+    <li>📊 Manage your business profile and matches</li>
+  </ul>
+  <p class="hint">All features are available after authentication for security and better user experience.</p>
+</div>
+    </section>
+
+    <section id="listings" class="view auth-required">
+      <h2>Opportunities</h2>
+      <div class="listings-container">
+        <div class="card requirements-form">
+          <h3>Post a requirement</h3>
+          <div class="form-grid">
+            <label>Title <input id="req-title" placeholder="e.g., Seeking Bangalore partner for HAE's Bakery"/></label>
+            <label>Sector <input id="req-sector" placeholder="e.g., Food & Beverage"/></label>
+            <label>Main Brand <input id="req-main" placeholder="Your current brand (e.g., HAE's Bakery)"/></label>
+            <label>Desired Sub-brand Name <input id="req-sub" placeholder="Optional (e.g., HAE's India)"/></label>
+            <label>Country <input id="req-country" placeholder="Target country (e.g., India)"/></label>
+            <label>City <input id="req-city" placeholder="Target city (e.g., Bangalore)"/></label>
+            <label>Partnership Type
+              <select id="req-type">
+                <option value="seek_local_partner">Seek local partner</option>
+                <option value="seek_investor">Seek investor</option>
+                <option value="offer_franchise">Offer franchise</option>
+              </select>
+            </label>
+            <label>Budget Min <input type="number" id="req-min" placeholder="e.g., 50000"/></label>
+            <label>Budget Max <input type="number" id="req-max" placeholder="e.g., 150000"/></label>
+            <label>Description <textarea id="req-desc" rows="3" placeholder="What you're looking for and why the market is a fit"></textarea></label>
+          </div>
+          <button id="btn-post-req">Post Requirement</button>
+          <p class="hint">You must be logged in to post.</p>
+        </div>
+        
+        <div class="card requirements-list">
+          <h3>Latest requirements</h3>
+          <div id="requirements-container"></div>
+        </div>
+      </div>
+    </section>
+    
+    <section id="costs" class="view auth-required">
+      <h2>Cost comparison tool</h2>
+      <div class="cost-tool-form">
+        <div class="card">
+          <h3>Input Parameters</h3>
+          <div class="form-grid">
+            <label>Base Rent <input type="number" id="base-rent" value="5000"/></label>
+            <label>Base Labor <input type="number" id="base-labor" value="12000"/></label>
+            <label>Base Utilities <input type="number" id="base-utils" value="1500"/></label>
+            <label>Base Logistics <input type="number" id="base-log" value="2000"/></label>
+            <label>Select Countries to Compare</label>
+            <div class="country-selection">
+              <select id="country-select" multiple size="8">
+                <!-- Countries will be loaded here -->
+              </select>
+              <div class="country-actions">
+                <button type="button" id="select-all-countries">Select All</button>
+                <button type="button" id="clear-countries">Clear All</button>
+              </div>
+            </div>
+          </div>
+          <button id="btn-costs">Compare Costs</button>
+        </div>
+      </div>
+      <div id="cost-results" class="cost-results-grid"></div>
+    </section>
+
+        <section id="messages" class="view auth-required">
+          <h2>Messages <span id="unread-badge" class="unread-badge hidden">0</span></h2>
+          <div class="flex">
+            <div class="card inbox-container">
+              <div class="inbox-header">
+                <h3>Your Inbox</h3>
+                <div class="inbox-actions">
+                  <button id="refresh-inbox" class="icon-btn" title="Refresh">🔄</button>
+                  <button id="mark-all-read" class="icon-btn" title="Mark all as read">✓</button>
+                </div>
+              </div>
+              <div class="inbox-search">
+                <input type="text" id="inbox-search" placeholder="Search conversations...">
+              </div>
+              <div id="inbox-list" class="inbox-list">
+                <!-- Conversations will be loaded here -->
+              </div>
+            </div>
+            <div class="card message-thread">
+              <div class="thread-header">
+                <h3 id="conversation-title">Select a conversation</h3>
+                <div class="thread-actions">
+                  <button id="delete-conversation" class="icon-btn hidden" title="Delete conversation">🗑️</button>
+                </div>
+              </div>
+              <div id="thread" class="thread-container">
+                <div class="thread-empty">
+                  <div class="empty-state">
+                    <div class="empty-icon">💬</div>
+                    <h4>No conversation selected</h4>
+                    <p>Choose a conversation from your inbox to start messaging</p>
+                  </div>
+                </div>
+              </div>
+              <div id="message-compose" class="message-compose hidden">
+                <div class="compose-header">
+                  <div class="message-options">
+                    <button id="attach-file" class="icon-btn" title="Attach file">📎</button>
+                    <button id="emoji-picker" class="icon-btn" title="Add emoji">😊</button>
+                  </div>
+                </div>
+                <div class="compose-input">
+                  <textarea id="msg-body" rows="3" placeholder="Type your message here..."></textarea>
+                  <button id="btn-send" class="send-btn">Send</button>
+                </div>
+                <div id="typing-indicator" class="typing-indicator hidden">
+                  <span id="typing-text"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Feed Section -->
+        <section id="feed" class="view auth-required">
+            <h2>Business Feed</h2>
+            
+            <!-- Post Creation Area -->
+            <div class="card post-creator">
+                <div class="post-creator-header">
+                    <div class="user-avatar">
+                        <img id="user-avatar-img" src="/static/logo.png" alt="Your avatar" />
+                    </div>
+                    <button id="btn-create-post" class="post-input-btn">What's on your mind?</button>
+                </div>
+                
+                <div id="post-creator-form" class="post-creator-form hidden">
+                    <div class="post-type-tabs">
+                        <button class="post-type-tab active" data-type="text">📝 Text</button>
+                        <button class="post-type-tab" data-type="image">📷 Photo</button>
+                        <button class="post-type-tab" data-type="video">🎥 Video</button>
+                        <button class="post-type-tab" data-type="article">📄 Article</button>
+                    </div>
+                    
+                    <div class="post-content">
+                        <textarea id="post-content" placeholder="Share your business insights, updates, or opportunities..." rows="4"></textarea>
+                        
+                        <div id="post-media" class="post-media hidden">
+                            <div class="file-upload-area" id="file-upload-area">
+                                <div class="upload-icon">📁</div>
+                                <div class="upload-text">
+                                    <p><strong>Click to upload</strong> or drag and drop</p>
+                                    <p class="upload-hint">Images: JPG, PNG, GIF • Videos: MP4, MOV, AVI</p>
+                                </div>
+                                <input type="file" id="media-file" accept="image/*,video/*" hidden />
+                            </div>
+                            <div class="uploaded-file-info hidden" id="uploaded-file-info">
+                                <div class="file-preview" id="file-preview"></div>
+                                <div class="file-details">
+                                    <span class="file-name" id="file-name"></span>
+                                    <span class="file-size" id="file-size"></span>
+                                    <button type="button" class="remove-file" id="remove-file">✕</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="post-article" class="post-article hidden">
+                            <input type="text" id="article-title" placeholder="Article title" />
+                            <textarea id="article-summary" placeholder="Article summary" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="post-actions">
+                            <button id="btn-post" class="primary">Post</button>
+                            <button id="btn-cancel-post" class="secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feed Posts -->
+            <div id="feed-posts" class="feed-posts">
+                <!-- Posts will be loaded here -->
+            </div>
+            
+            <!-- Load More -->
+            <div class="load-more-container">
+                <button id="btn-load-more" class="load-more-btn">Load More Posts</button>
+            </div>
+        </section>
+
+    <section id="dashboard" class="view auth-required">
+      <h2>Dashboard</h2>
+      <div class="flex">
+        <div id="match-area" class="card dashboard-matches"></div>
+        <div id="biz-editor" class="card dashboard-profile">
+          <h3>Your business profile</h3>
+          <div class="form-grid">
+            <label>Name <input id="biz-name"/></label>
+            <label>Sector <input id="biz-sector"/></label>
+            <label>Country <input id="biz-country"/></label>
+            <label>City <input id="biz-city"/></label>
+            <label>Investment Min <input type="number" id="biz-min"/></label>
+            <label>Investment Max <input type="number" id="biz-max"/></label>
+            <label>Brand Story <textarea id="biz-story" rows="3"></textarea></label>
+            <label>Expansion Potential <textarea id="biz-exp" rows="3"></textarea></label>
+          </div>
+          <button id="btn-save-biz">Save</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Personal Profile Dashboard -->
+    <section id="personal" class="view auth-required">
+      <div class="personal-container">
+        <div class="personal-header">
+          <div class="profile-info">
+            <div class="profile-avatar">
+              <img src="/static/logo.png" alt="Profile" id="profile-avatar-img" />
+            </div>
+            <div class="profile-details">
+              <h2 id="profile-name">Loading...</h2>
+              <p id="profile-role">Loading...</p>
+              <p id="profile-email">Loading...</p>
+            </div>
+          </div>
+          
+          <div class="profile-stats">
+            <div class="stat-item">
+              <div class="stat-number" id="profile-posts-count">0</div>
+              <div class="stat-label">Posts</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number" id="profile-followers-count">0</div>
+              <div class="stat-label">Followers</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number" id="profile-following-count">0</div>
+              <div class="stat-label">Following</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="personal-tabs">
+          <button class="tab-btn active" data-tab="overview">Overview</button>
+          <button class="tab-btn" data-tab="posts">My Posts</button>
+          <button class="tab-btn" data-tab="followers">Followers</button>
+          <button class="tab-btn" data-tab="following">Following</button>
+        </div>
+        
+        <div class="tab-content">
+          <!-- Overview Tab -->
+          <div id="tab-overview" class="tab-panel active">
+            <div class="engagement-metrics">
+              <h3>Engagement Metrics</h3>
+              <div class="metrics-grid">
+                <div class="metric-card">
+                  <div class="metric-icon">👍</div>
+                  <div class="metric-content">
+                    <div class="metric-number" id="total-likes">0</div>
+                    <div class="metric-label">Total Likes</div>
+                  </div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-icon">💬</div>
+                  <div class="metric-content">
+                    <div class="metric-number" id="total-comments">0</div>
+                    <div class="metric-label">Total Comments</div>
+                  </div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-icon">📤</div>
+                  <div class="metric-content">
+                    <div class="metric-number" id="total-shares">0</div>
+                    <div class="metric-label">Total Shares</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="recent-posts">
+              <h3>Recent Posts</h3>
+              <div class="recent-posts-list" id="recent-posts-list">
+                <!-- Recent posts will be loaded here -->
+              </div>
+            </div>
+          </div>
+          
+          <!-- My Posts Tab -->
+          <div id="tab-posts" class="tab-panel">
+            <div class="posts-header">
+              <h3>My Posts</h3>
+              <div class="posts-filter">
+                <select id="posts-sort">
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="popular">Most Popular</option>
+                </select>
+              </div>
+            </div>
+            <div class="my-posts-list" id="my-posts-list">
+              <!-- User's posts will be loaded here -->
+            </div>
+          </div>
+          
+          <!-- Followers Tab -->
+          <div id="tab-followers" class="tab-panel">
+            <div class="followers-header">
+              <h3>Followers</h3>
+              <div class="followers-count" id="followers-count">0 followers</div>
+            </div>
+            <div class="followers-list" id="followers-list">
+              <!-- Followers will be loaded here -->
+            </div>
+          </div>
+          
+          <!-- Following Tab -->
+          <div id="tab-following" class="tab-panel">
+            <div class="following-header">
+              <h3>Following</h3>
+              <div class="following-count" id="following-count">0 following</div>
+            </div>
+            <div class="following-list" id="following-list">
+              <!-- Following will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="admin" class="view auth-required">
+      <h2>Admin Dashboard</h2>
+      <div class="admin-grid">
+        <div class="card admin-stats">
+          <h3>Platform Statistics</h3>
+          <div id="admin-stats-content">
+            <!-- Stats will be loaded here -->
+          </div>
+        </div>
+        <div class="card admin-users">
+          <h3>Recent Users</h3>
+          <div id="admin-users-content">
+            <!-- Users will be loaded here -->
+          </div>
+        </div>
+        <div class="card admin-requirements">
+          <h3>Recent Requirements</h3>
+          <div id="admin-requirements-content">
+            <!-- Requirements will be loaded here -->
+          </div>
+        </div>
+        <div class="card admin-messages">
+          <h3>Recent Messages</h3>
+          <div id="admin-messages-content">
+            <!-- Messages will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="modal-title">Auth</h3>
+      <div id="modal-body"></div>
+      <div class="modal-actions">
+        <button id="modal-close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>© Globridge MVP</footer>
+  <script src="/static/app.js"></script>
+</body>
+</html>
