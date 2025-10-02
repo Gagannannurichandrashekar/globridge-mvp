@@ -180,37 +180,51 @@ Base.metadata.create_all(bind=engine)
 # Auto-seed database if empty (for production deployment)
 def auto_seed_if_empty():
     try:
+        print("Starting auto-seed check...")
         db = SessionLocal()
-        if db.query(User).count() == 0:
-            print("Database is empty, auto-seeding...")
-            # Create basic users
-            biz_user = User(
-                name="HAE's Bakery",
-                email="hae@bakery.example",
-                password_hash=pwd_context.hash("demo1234"),
-                role="business"
-            )
-            inv_user = User(
-                name="BluePeak Investments", 
-                email="partner@bluepeak.example",
-                password_hash=pwd_context.hash("demo1234"),
-                role="investor"
-            )
-            admin_user = User(
-                name="Admin User",
-                email="admin@globridge.com",
-                password_hash=pwd_context.hash("admin123"),
-                role="admin"
-            )
-            db.add_all([biz_user, inv_user, admin_user])
-            db.commit()
-            print("Auto-seeding completed successfully!")
-        db.close()
+        try:
+            user_count = db.query(User).count()
+            print(f"Current user count: {user_count}")
+            
+            if user_count == 0:
+                print("Database is empty, auto-seeding...")
+                # Create basic users
+                biz_user = User(
+                    name="HAE's Bakery",
+                    email="hae@bakery.example",
+                    password_hash=pwd_context.hash("demo1234"),
+                    role="business"
+                )
+                inv_user = User(
+                    name="BluePeak Investments", 
+                    email="partner@bluepeak.example",
+                    password_hash=pwd_context.hash("demo1234"),
+                    role="investor"
+                )
+                admin_user = User(
+                    name="Admin User",
+                    email="admin@globridge.com",
+                    password_hash=pwd_context.hash("admin123"),
+                    role="admin"
+                )
+                db.add_all([biz_user, inv_user, admin_user])
+                db.commit()
+                print("Auto-seeding completed successfully!")
+            else:
+                print("Database already has users, skipping auto-seed")
+        finally:
+            db.close()
     except Exception as e:
         print(f"Auto-seed error: {e}")
+        # Don't crash the app if seeding fails
+        pass
 
-# Run auto-seed on startup
-auto_seed_if_empty()
+# Run auto-seed on startup (non-blocking)
+try:
+    auto_seed_if_empty()
+except Exception as e:
+    print(f"Startup auto-seed failed: {e}")
+    # Continue anyway
 
 # ---------- App init ----------
 app = FastAPI(title="Globridge MVP", version="0.1.0")
@@ -1347,7 +1361,7 @@ def update_connection_status(connection_id: int, request: Request, status: str, 
     
     connection.status = status
     db.commit()
-    
+
     return {"ok": True}
 
 @app.get("/api/users/search")
