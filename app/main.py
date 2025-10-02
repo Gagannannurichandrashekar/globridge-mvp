@@ -235,14 +235,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Run auto-seed on startup (non-blocking) - after app creation
-@app.on_event("startup")
-async def startup_event():
-    try:
-        auto_seed_if_empty()
-    except Exception as e:
-        print(f"Startup auto-seed failed: {e}")
-        # Continue anyway
+# Auto-seed will be handled manually via /api/seed endpoint
 
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
