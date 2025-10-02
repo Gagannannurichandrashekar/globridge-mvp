@@ -1,5 +1,5 @@
 const $ = sel => document.querySelector(sel);
-const API_BASE = 'http://localhost:8000';
+const API_BASE = window.location.origin;
 const API = async path => {
   const response = await fetch(API_BASE + path, {credentials:'include'});
   if (!response.ok) {
