@@ -177,6 +177,41 @@ class Connection(Base):
 
 Base.metadata.create_all(bind=engine)
 
+# Auto-seed database if empty (for production deployment)
+def auto_seed_if_empty():
+    try:
+        db = SessionLocal()
+        if db.query(User).count() == 0:
+            print("Database is empty, auto-seeding...")
+            # Create basic users
+            biz_user = User(
+                name="HAE's Bakery",
+                email="hae@bakery.example",
+                password_hash=pwd_context.hash("demo1234"),
+                role="business"
+            )
+            inv_user = User(
+                name="BluePeak Investments", 
+                email="partner@bluepeak.example",
+                password_hash=pwd_context.hash("demo1234"),
+                role="investor"
+            )
+            admin_user = User(
+                name="Admin User",
+                email="admin@globridge.com",
+                password_hash=pwd_context.hash("admin123"),
+                role="admin"
+            )
+            db.add_all([biz_user, inv_user, admin_user])
+            db.commit()
+            print("Auto-seeding completed successfully!")
+        db.close()
+    except Exception as e:
+        print(f"Auto-seed error: {e}")
+
+# Run auto-seed on startup
+auto_seed_if_empty()
+
 # ---------- App init ----------
 app = FastAPI(title="Globridge MVP", version="0.1.0")
 
