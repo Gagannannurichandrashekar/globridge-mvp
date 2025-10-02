@@ -1395,8 +1395,12 @@ def get_admin_stats(request: Request, db=Depends(get_db)):
 # ---------- Seed demo (optional) ----------
 @app.post("/api/seed")
 def seed(db=Depends(get_db)):
-    if db.query(User).count() > 0:
-        return {"skipped": True}
+    try:
+        if db.query(User).count() > 0:
+            return {"skipped": True}
+    except Exception as e:
+        print(f"Database error during seed: {e}")
+        return {"error": f"Database error: {str(e)}"}
 
     # Users
     biz_user = User(
@@ -1528,6 +1532,9 @@ def seed(db=Depends(get_db)):
     db.add_all(reqs); db.commit()
 
     return {"ok": True}
+    except Exception as e:
+        print(f"Seed error: {e}")
+        return {"error": f"Seed failed: {str(e)}"}
 
 # ---------- Connection Management API Endpoints ----------
 
