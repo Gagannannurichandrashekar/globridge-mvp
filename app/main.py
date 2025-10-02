@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, Response, Depends, HTTPException, UploadFi
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
 from itsdangerous import TimestampSigner, BadSignature, SignatureExpired
@@ -178,6 +179,16 @@ Base.metadata.create_all(bind=engine)
 
 # ---------- App init ----------
 app = FastAPI(title="Globridge MVP", version="0.1.0")
+
+# Add CORS middleware for production deployment
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, you might want to restrict this
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
