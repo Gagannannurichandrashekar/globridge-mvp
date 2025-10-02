@@ -364,6 +364,25 @@ def get_current_user(request: Request, db=Depends(get_db)):
         return {"user": {"id": user.id, "name": user.name, "role": user.role, "email": user.email}}
     return {"user": None}
 
+@app.get("/api/health")
+def health_check(db=Depends(get_db)):
+    try:
+        # Test database connection
+        user_count = db.query(User).count()
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "user_count": user_count,
+            "environment": "production" if os.getenv("RAILWAY_ENVIRONMENT") else "development"
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "database": "error",
+            "error": str(e),
+            "environment": "production" if os.getenv("RAILWAY_ENVIRONMENT") else "development"
+        }
+
 # ---------- Requirement APIs ----------
 @app.post("/api/requirements")
 def create_requirement(payload: RequirementPayload, request: Request, db=Depends(get_db)):
